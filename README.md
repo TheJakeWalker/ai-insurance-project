@@ -36,7 +36,7 @@ Visit [http://localhost:3000](http://localhost:3000)
 This app uses **Next.js App Router** with a clean separation of concerns:
 
 - `Dropzone.tsx` handles drag-and-drop uploads, status tracking, and client-side parsing
-- `parser.ts` extracts plain text from `.txt` and `.docx` files using the [`mammoth`](https://www.npmjs.com/package/mammoth) library
+- `parser.ts` extracts plain text from `.txt` and `.docx` files using the [`mammoth`](https://www.npmjs.com/package/mammoth) library. (Note: `.docx` implementation not fully finished).
 - `route.ts` (API route) sends text to OpenAI's GPT (`gpt-3.5-turbo`) and returns an extracted name
 - `match.ts` uses [`Fuse.js`](https://fusejs.io/) to perform fuzzy matching between the extracted name and a static list of insureds
 - Matches are returned with a confidence score and rendered in a UI results table
@@ -47,7 +47,7 @@ TypeScript is used throughout with strict mode enabled. The OpenAI key is secure
 
 ## 🧠 Assumptions & Trade-offs
 
-- Only `.txt` and `.docx` files are supported (PDF skipped per instruction)
+- Only `.txt` files are supported (PDF and `.docx` were unable to be completed)
 - Matching is based on normalized names using `Fuse.js` and a **confidence threshold of 85%**
 - GPT is prompted to return only the insured name (we assume it follows the prompt)
 - Text parsing is done on the **client side** for simplicity
