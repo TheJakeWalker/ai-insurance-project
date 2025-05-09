@@ -1,36 +1,86 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# 🏗️ AI Insurance Take-Home – Claim Parser
 
-## Getting Started
+This tool parses insurance claim files, extracts the insured name using GPT, and matches it to a known list of insured entities with confidence scoring.
 
-First, run the development server:
+Built with **Next.js 14**, **React 18**, and **TypeScript** using the App Router and server actions.
 
+---
+
+## 🚀 Setup & Run
+
+### 1. Install dependencies
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+npm install
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+### 2. Configure OpenAI key
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+Create a `.env.local` file:
+```
+OPENAI_API_KEY=your-api-key-here
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+> You can refer to `.env.example` for variable structure.
 
-## Learn More
+### 3. Start the app
+```bash
+npm run dev
+```
 
-To learn more about Next.js, take a look at the following resources:
+Visit [http://localhost:3000](http://localhost:3000)
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+---
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## 🧱 Architecture Notes
 
-## Deploy on Vercel
+This app uses **Next.js App Router** with a clean separation of concerns:
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+- `Dropzone.tsx` handles drag-and-drop uploads, status tracking, and client-side parsing
+- `parser.ts` extracts plain text from `.txt` and `.docx` files using the [`mammoth`](https://www.npmjs.com/package/mammoth) library
+- `route.ts` (API route) sends text to OpenAI's GPT (`gpt-3.5-turbo`) and returns an extracted name
+- `match.ts` uses [`Fuse.js`](https://fusejs.io/) to perform fuzzy matching between the extracted name and a static list of insureds
+- Matches are returned with a confidence score and rendered in a UI results table
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+TypeScript is used throughout with strict mode enabled. The OpenAI key is secured via `process.env`. No data is persisted — this is an in-memory tool for real-time file parsing.
+
+---
+
+## 🧠 Assumptions & Trade-offs
+
+- Only `.txt` and `.docx` files are supported (PDF skipped per instruction)
+- Matching is based on normalized names using `Fuse.js` and a **confidence threshold of 85%**
+- GPT is prompted to return only the insured name (we assume it follows the prompt)
+- Text parsing is done on the **client side** for simplicity
+- No persistent storage or database is used
+
+---
+
+## 🧪 Test Coverage
+
+```bash
+npm run test
+```
+
+Includes unit tests for `matchInsuredName()`:
+- Exact match
+- Loose match (case/suffix variations)
+- No match (under threshold)
+
+---
+
+## 📁 Project Structure
+
+```
+src/
+├── app/
+│   └── api/ask-gpt/route.ts     # API route for GPT + match
+│   └── layout.tsx               # Global layout
+│   └── page.tsx                 # Home page
+├── components/Dropzone.tsx      # Drag-and-drop file upload
+├── lib/
+│   ├── parser.ts                # File parsing logic
+│   ├── match.ts                 # Fuzzy matching logic
+├── constants/insureds.ts        # Static insured data
+├── __tests__/match.test.ts      # Jest test for matcher
+.env.example                     # Env template
+```
