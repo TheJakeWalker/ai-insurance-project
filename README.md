@@ -1,4 +1,4 @@
-# 🏗️ AI Insurance Take-Home – Claim Parser
+# 🏗️ AI Insurance – Claim Parser
 
 This tool parses insurance claim files, extracts the insured name using GPT, and matches it to a known list of insured entities with confidence scoring.
 
